@@ -3,7 +3,11 @@ import UsuarioService from '../services/usuario-service'
 import Card from '../componentes/card'
 import FormGroup from '../componentes/form-group'
 import currencyFormatter from 'currency-formatter'
-import { msgErro, msgAlerta,msgSucesso } from '../componentes/toastr'
+import { msgErro, msgAlerta, msgSucesso } from '../componentes/toastr'
+import { AuthContext } from '../main/ProvedorAutenticacao'
+import AdminService from '../services/admin-service'
+import LocalStorageService from '../services/local-storage-service'
+import '../css/consulta-usuario-estilo.css'
 
 class ConsultaUsuario extends React.Component {
 
@@ -11,9 +15,11 @@ class ConsultaUsuario extends React.Component {
     constructor() {
         super()
         this.usuarioService = new UsuarioService()
+        this.adminService = new AdminService()
     }
 
     state = {
+        nome: '',
         funcao: '',
         usuarios: []
     }
@@ -24,6 +30,14 @@ class ConsultaUsuario extends React.Component {
                 this.setState({ usuarios: response.data })
             }).catch(erro => {
                 msgErro(erro.response.data.messagem)
+            })
+        const adminLogado = LocalStorageService.obterItem('_admin_logado')
+
+        this.adminService.obterId(adminLogado.id
+            ).then(response => {
+                this.setState({ nome: response.data.nome })
+            }).catch(error => {
+                msgErro('Nome não encontrado')
             })
     }
 
@@ -72,7 +86,19 @@ class ConsultaUsuario extends React.Component {
     render() {
         const { usuarios } = this.state
         return (
+
             <Card title="Bem vindo">
+                <Card>
+                <div className="jumbotron">
+                    <h1 style={{color:'black'}} className="display-3">Bem vindo, {this.state.nome}</h1>
+                    <p style={{color:'black'}} className="lead">Este é um CRUD de usuários, pode usar a qualquer momento!!</p>
+                    <p className="lead">
+                        { <button onClick={this.context.encerrarSessao} className="btn btn-danger">
+                            Deslogar
+                        </button> }
+                    </p>
+                </div> 
+            </Card>
                 <div className="row">
                     <div className="col-lg-12">
                         <div className="bs-component">
@@ -122,7 +148,7 @@ class ConsultaUsuario extends React.Component {
                                                         <td>{usuario.nome}</td>
                                                         <td>{usuario.sobrenome}</td>
                                                         <td>{usuario.funcao}</td>
-                                                        <td>{currencyFormatter.format(usuario.salario,{locale:'pt-BR'})}</td>
+                                                        <td>{currencyFormatter.format(usuario.salario, { locale: 'pt-BR' })}</td>
                                                         <td><button title="Deletar"
                                                             className="btn btn-warning"
                                                             onClick={() =>
@@ -152,4 +178,5 @@ class ConsultaUsuario extends React.Component {
 
 }
 
+ConsultaUsuario.contextType = AuthContext
 export default ConsultaUsuario

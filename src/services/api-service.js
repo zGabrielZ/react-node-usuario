@@ -1,8 +1,19 @@
 import axios from 'axios'
+import LocalStorageService from './local-storage-service'
 
 const httpCliente = axios.create({
     baseURL:'http://localhost:8080'
 })
+
+httpCliente.interceptors.request.use(async config =>{
+    const token = LocalStorageService.obterItem('_admin_logado')
+    if(token){
+        config.headers.Authorization = `Bearer ${token.token}`
+    }
+    return config
+})
+
+
 
 class ApiService {
 

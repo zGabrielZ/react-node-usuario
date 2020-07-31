@@ -1,26 +1,50 @@
 import React from 'react'
 import Card from '../componentes/card'
 import FormGroup from '../componentes/form-group'
-import {withRouter} from 'react-router-dom' 
+import { withRouter } from 'react-router-dom'
+import AdminService from '../services/admin-service'
+import { AuthContext } from '../main/ProvedorAutenticacao'
+import {msgErro} from '../componentes/toastr'
+import '../css/login-estilo.css'
 
 class Login extends React.Component {
 
+
+    constructor() {
+        super()
+        this.adminService = new AdminService()
+    }
 
 
     state = {
         email: '',
         senha: '',
-        errorCampos:[]
+        errorCampos: []
     }
 
-    
+
+    componentDidMount(){
+        if(this.context.isAutenticado){
+            this.props.history.push('/consulta-usuario')
+        }
+    }
+
 
     entrar = () => {
-        console.log('oi')
+        this.adminService.autenticar({
+            email: this.state.email,
+            senha: this.state.senha
+        }).then(response => {
+            this.context.iniciarSessao(response.data)
+            this.props.history.push('/consulta-usuario')
+        }).catch(error => {
+            console.log(error.response)
+            msgErro(error.response.data.error)
+        })
     }
 
-    cadastrar = () =>{
-        console.log('oioio')
+    cadastrar = () => {
+        this.props.history.push('/cadastro-admin')
     }
 
 
@@ -53,7 +77,7 @@ class Login extends React.Component {
                                             <button className="btn btn-success" onClick={this.entrar}>
                                                 Entrar
                                                 </button>
-                                            <button style={{ marginLeft: '20px' }} onClick={this.cadastrar} className="btn btn-danger">
+                                            <button onClick={this.cadastrar} className="btn btn-danger dois-bt">
                                                 Cadastrar
                                                 </button>
                                         </fieldset>
@@ -69,5 +93,6 @@ class Login extends React.Component {
 
 }
 
+Login.contextType = AuthContext
 
 export default withRouter(Login)

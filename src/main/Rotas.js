@@ -1,21 +1,47 @@
 import React from 'react'
-import { Route, Switch, HashRouter } from 'react-router-dom'
-import CadastroUsuario from '../views/cadastro-usuario'
-import ConsultaUsuario from '../views/consulta-usuario'
+import {Route,Switch,HashRouter,Redirect} from 'react-router-dom'
 import Login from '../views/login'
+import CadastroAdmin from '../views/cadastro-admin'
+import ConsultaUsuario from '../views/consulta-usuario'
+import CadastroUsuario from '../views/cadastro-usuario'
+import { AuthConsumer } from '../main/ProvedorAutenticacao'
 
-class Rota extends React.Component {
-    render() {
-        return (
-            <HashRouter>
-                <Switch>
-                    <Route path="/consulta-usuario" component={ConsultaUsuario}></Route>
-                    <Route path="/usuario/:id?" component={CadastroUsuario}></Route>                                    
-                    <Route path="/" component={Login}></Route> 
-                </Switch>
-            </HashRouter>
-        )
-    }
+
+function RotaAutenticada({component:Component,isAdminAutenticado,...props}){
+    return (
+        <Route {...props} render={(componentProps)=>{
+            if(isAdminAutenticado){
+                return (
+                    <Component {...componentProps} />
+                )
+            }
+            else{
+                return(
+                    <Redirect to={{pathname:'/login',state:{from:componentProps.location}}}  />
+                )
+            }
+        }}/>
+    )
 }
 
-export default Rota
+function Rotas(props){
+    return(
+        <HashRouter>
+            <Switch>
+                <Route path="/login" component={Login}></Route>
+                <Route path="/cadastro-admin" component={CadastroAdmin}></Route>
+                
+                <RotaAutenticada isAdminAutenticado={props.isAdminAutenticado} path="/consulta-usuario" component={ConsultaUsuario}/>
+                <RotaAutenticada isAdminAutenticado={props.isAdminAutenticado} path="/usuario/:id?" component={CadastroUsuario}/>
+            </Switch>
+        </HashRouter>
+    )
+}
+
+export default () =>(
+    <AuthConsumer>
+        {
+            (context) => (<Rotas isAdminAutenticado={context.isAutenticado}  />)
+        }
+    </AuthConsumer>
+)

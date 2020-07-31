@@ -3,6 +3,7 @@ import Card from '../componentes/card'
 import FormGroup from '../componentes/form-group'
 import UsuarioService from '../services/usuario-service'
 import { msgErro,msgSucesso, msgErroForm } from '../componentes/toastr'
+import '../css/cadastro-admin-estilo.css'
 
 
 class CadastroUsuario extends React.Component {
@@ -144,7 +145,7 @@ class CadastroUsuario extends React.Component {
                                     Cadastrar
                                 </button>
                         }
-                        <button onClick={this.voltar} className="btn btn-danger">
+                        <button onClick={this.voltar} className="btn btn-danger dois-bt">
                             Voltar
                         </button>
                     </div>
