@@ -35,7 +35,7 @@ class ConsultaUsuario extends React.Component {
 
         this.adminService.obterId(adminLogado.id
             ).then(response => {
-                this.setState({ nome: response.data.nome })
+                this.setState({ nome: response.data.admins.nome })
             }).catch(error => {
                 msgErro('Nome não encontrado')
             })
